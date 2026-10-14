@@ -12,6 +12,8 @@ venv/
 
 # Outputs (renders, metrics, experiment results)
 output/
+*.log
+*.pid
 *.png
 *.usda
 *.usd

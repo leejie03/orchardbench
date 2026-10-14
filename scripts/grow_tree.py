@@ -137,6 +137,8 @@ def make_viewer(args):
         return V.ViewerUSD(output_path=args.output, num_frames=args.frames)
     if args.viewer == "null":
         return V.ViewerNull(num_frames=args.frames)
+    if args.viewer == "viser":
+        return V.ViewerViser(port=8080)
     raise ValueError(args.viewer)
 
 
@@ -208,7 +210,7 @@ def parse_args():
                         "robot chassis visibly clips through crests)")
 
     r = p.add_argument_group("render/sim")
-    r.add_argument("--viewer", default="gl", choices=["gl", "rtx", "usd", "null"],
+    r.add_argument("--viewer", default="gl", choices=["gl", "rtx", "usd", "null", "viser"],
                    help="gl = interactive window; null = NO rendering (physics-only)")
     r.add_argument("--num-envs", type=int, default=1,
                    help="parallel copies of the tree, batched on the GPU (IsaacLab-style). "

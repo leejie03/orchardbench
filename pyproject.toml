@@ -19,6 +19,7 @@ dependencies = [
     "pandas>=2.0",       # analysis tables
     "pillow>=10.0",      # PNG screenshot writing
     "tabulate>=0.9",     # pretty result tables (optional, graceful fallback)
+    "viser>=1.1.1,<2",
 ]
 
 [project.urls]
