@@ -52,8 +52,8 @@ def _make_solver(name, model, *, collisions, iterations, ls_iterations,
         return newton.solvers.SolverMuJoCo(model, disable_contacts=not collisions,
                                            use_mujoco_contacts=False if collisions else True,
                                            solver=algo_i,
-                                           nconmax=2048 if collisions else None,
-                                           njmax=8192 if collisions else 1024)
+                                           nconmax=4096 if collisions else None,
+                                           njmax=16384 if collisions else 1024)
     if name == "featherstone":
         return newton.solvers.SolverFeatherstone(model)
     if name == "semiimplicit":
