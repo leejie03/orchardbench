@@ -14,6 +14,7 @@ import os
 import numpy as np
 import warp as wp
 import newton
+from newton.viewer import ViewerNull
 
 from .builder import TreeModel
 from . import breaking as _breaking
@@ -321,8 +322,10 @@ class Sim:
         if self.breaker is not None and hasattr(self.breaker, "render"):
             self.breaker.render(self.viewer)   # recolour newly-snapped branches
         self.viewer.begin_frame(self.sim_time)
-        self.viewer.log_state(self.state_0)
-        self.viewer.log_contacts(self.contacts, self.state_0)
+        # ViewerNull inherits geometry updates even though it never displays them.
+        if not isinstance(self.viewer, ViewerNull):
+            self.viewer.log_state(self.state_0)
+            self.viewer.log_contacts(self.contacts, self.state_0)
         self.viewer.end_frame()
 
     # -- diagnostics ---------------------------------------------------------
