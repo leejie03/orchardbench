@@ -464,7 +464,9 @@ class WristCamera:
 
     def __init__(self, model, viewer, tm, rp: RobotParams, perceive: bool = True):
         from newton.sensors import SensorTiledCamera
+        from newton.viewer import ViewerNull
         self.viewer = viewer
+        self._display = not isinstance(viewer, ViewerNull)
         self.model = model
         self.rp = rp
         self.wrist = np.asarray(tm.robot_data["wrist"], dtype=int)
@@ -586,11 +588,13 @@ class WristCamera:
         from newton.sensors import SensorTiledCamera as _S
         clear = _S.ClearData(clear_depth=float(self.rp.camera_range))  # misses read FAR
         self.sensor.update(state, cam, self.rays,
-                           color_image=self.color, depth_image=self.depth,
+                           color_image=self.color if self._display else None,
+                           depth_image=self.depth,
                            clear_data=clear)
-        self.sensor.utils.to_rgba_from_depth(
-            self.depth, depth_range=(0.0, float(self.rp.camera_range)),
-            out_buffer=self.depth_rgba)
+        if self._display:
+            self.sensor.utils.to_rgba_from_depth(
+                self.depth, depth_range=(0.0, float(self.rp.camera_range)),
+                out_buffer=self.depth_rgba)
 
         # fruit detection (env 0): sphere-fit on the depth image, highlighted
         # IN THE MAIN VIEWER as green marker spheres at the estimated 3-D
@@ -650,7 +654,7 @@ class WristCamera:
                     if np.linalg.norm(selfp - det.center_world, axis=1).min() > 0.20]
             try:
                 dets0 = self.dets_env[0]
-                if dets0:
+                if self._display and dets0:
                     n = len(dets0)
                     pts = wp.array([wp.vec3(*map(float, det.center_world))
                                     for det in dets0], dtype=wp.vec3)
@@ -662,13 +666,15 @@ class WristCamera:
                     cols = wp.array([wp.vec3(0.1, 1.0, 0.25)] * n, dtype=wp.vec3)
                     self.viewer.log_points("fruit detections", pts, radii=radii,
                                            colors=cols)
-                else:
+                elif self._display:
                     self.viewer.log_points("fruit detections", None, hidden=True)
             except Exception:
                 pass
 
         # wrist-depth panel (env 0 only) with the detections circled and the
         # committed pick target crosshaired (picker sets .highlight)
+        if not self._display:
+            return
         try:
             rgba0 = self.depth_rgba.numpy()[0]
             if self.percept is not None:
